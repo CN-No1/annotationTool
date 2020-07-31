@@ -3,8 +3,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import './plugins/element.js'
-import HttpPlugin from '@/https/index';
-
+import HttpPlugin from './https/index';
+Vue.use(HttpPlugin);
 Vue.config.productionTip = false
 
 new Vue({
