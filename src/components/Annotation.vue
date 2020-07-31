@@ -12,15 +12,19 @@
     </div>
     <div class="annotation-wrapper">
       <div class="annotation">
-        <el-popover
-          placement="top-start"
-          title="材料"
-          width="800"
-          trigger="hover"
-          :content="questionText || '无'"
-        >
-          <div class="question" slot="reference">Q: {{ question }}</div>
-        </el-popover>
+        <div class="question">
+          Q: {{ question }}
+          <el-popover
+            placement="top-end"
+            title="材料"
+            width="800"
+            trigger="hover"
+            :content="questionText || '无'"
+          >
+            <i class="el-icon-info" slot="reference"></i>
+          </el-popover>
+        </div>
+
         <div class="label-wrapper">
           <span
             class="label"
