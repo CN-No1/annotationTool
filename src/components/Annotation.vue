@@ -139,6 +139,7 @@ export default class Annotate extends Vue {
   private changeText(i: any, index: number) {
     this.textTemp = this.text = i.text;
     this.index = index;
+    this.tableData = [].concat(i.labeled);
   }
 
   private annotate(i: any) {
@@ -232,14 +233,16 @@ export default class Annotate extends Vue {
       color: #f3f3f3;
       font-weight: 500;
       text-align: left;
-      padding: 0 20px;
-      overflow: hidden;
+      // border-bottom: 1px dotted rgb(255, 255, 255);
+      cursor: pointer;
+      word-break: break-all;
       text-overflow: ellipsis;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
-      height: 60px;
-      cursor: pointer;
-      margin: 20px 0;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
+      margin: 30px 10px;
+      line-height: 30px;
     }
   }
   .annotation-wrapper {
