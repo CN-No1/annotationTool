@@ -35,9 +35,6 @@ const DEF = [
  */
 function successParse (res: { data: { code: number, data: object, msg: any } }, load: boolean, defEx: boolean, defData: boolean) {
   return new Promise((resolve) => {
-    if (load) {
-      window.$globalHub.$store.dispatch('setLoading', {show: false});
-    }
     try {
       const obj = res.data;
       if (obj.code === config.Code.SUCCESS) {
@@ -75,9 +72,6 @@ function successParse (res: { data: { code: number, data: object, msg: any } }, 
 function errorParse (ex: { headers: any, status: number, data: { code: number, data: object, msg: any } }, load: boolean, defFail: boolean, arg: any) {
   let resData = null;
   return new Promise((resolve, reject) => {
-    if (load) {
-      window.$globalHub.$store.dispatch('setLoading', {show: false});
-    }
     const obj = ex ? ex.data : {msg: ''};
 
     if (ex.status === 401) {
@@ -124,9 +118,6 @@ function errorParse (ex: { headers: any, status: number, data: { code: number, d
  * @returns {Promise<U>|*|Promise|Promise.<T>}
  */
 function send (url: string, method: string, body: object, options: any, load: boolean, loadMsg: string, defFail: boolean, defEx: boolean, defData: boolean) {
-  if (load) {
-    window.$globalHub.$store.dispatch('setLoading', {show: true, msg: loadMsg});
-  }
   // 生成请求的url
   // url = !url.startsWith('http') ? `${DOMAIN}${url}` : url
   const opts = {
@@ -137,7 +128,7 @@ function send (url: string, method: string, body: object, options: any, load: bo
   opts.headers = {
     'Accept': 'application/json',
     'Content-Type': options && options.isForm ? 'application/x-www-form-urlencoded' : 'application/json',
-    'Authorization': 'JWT ' + window.$globalHub.$store.state.auth.token,
+    // 'Authorization': 'JWT ' + window.$globalHub.$store.state.auth.token,
     ...opts.headers
   };
   // post form-data请求将参数序列化成 form 参数

@@ -5,7 +5,7 @@
  * @Content : 架构配置文件
  */
 
-const CompressionWebpackPlugin = require('compression-webpack-plugin');
+// const CompressionWebpackPlugin = require('compression-webpack-plugin');
 const project_config = require('./src/config');
 const ENV = process.env.VUE_APP_CURRENTMODE;
 const isBuild = process.env.VUE_APP_CURRENTMODE !== 'development';
@@ -27,16 +27,7 @@ module.exports = {
   publicPath: '/',
   assetsDir: 'static',
   productionSourceMap: false,
-  configureWebpack: (config) => {
-    config.plugins.push(
-      new CompressionWebpackPlugin({
-        test: new RegExp('\\.(' + productionGzipExtensions.join('|') + ')$'),
-        threshold: 1024 * 30, // 30K
-        minRatio: 0.8,
-        exclude: /node_modules/,
-      })
-    );
-  },
+  configureWebpack: (config) => {},
   css: {},
   // webPack-dev-server的所有选项
   devServer: {
