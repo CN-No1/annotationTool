@@ -1,13 +1,16 @@
 <template>
   <div class="wrapper">
-    <div class="text-list">
+    <div class="text-list" ref="textListRef">
       <div
         class="text-item"
-        v-for="(i, index) in textList"
-        @click="changeText(i, index)"
-        :style="{ color: i.labeled.length > 0 ? 'green' : 'white' }"
+        v-for="(i, idx) in textList"
+        @click="changeText(i, idx)"
+        :style="{
+          color: i.labeled.length > 0 ? 'green' : 'white',
+          background: idx === index ? '#515054' : '#2a2e2f',
+        }"
       >
-        {{ index + 1 }}、{{ i.text }}
+        {{ idx + 1 }}、{{ i.text }}
       </div>
     </div>
     <div class="annotation-wrapper">
@@ -147,21 +150,19 @@ export default class Annotate extends Vue {
   private json = require('@/assets/json/demo2.json');
 
   private mounted() {
-    this.initText();
+    this.initText(0);
   }
 
-  private initText() {
-    const init = this.json[0];
+  private initText(index: number) {
+    const init = this.json[index];
     this.textTemp = this.text = init.text;
     this.question = init.question_text;
     this.questionText = init.problem_text;
   }
 
   private changeText(i: any, index: number) {
-    this.textTemp = this.text = i.text;
     this.index = index;
-    this.question = i.question_text;
-    this.questionText = i.problem_text;
+    this.initText(index);
     this.tableData = [].concat(i.labeled);
   }
 
@@ -226,7 +227,8 @@ export default class Annotate extends Vue {
       return;
     }
     this.index--;
-    this.textTemp = this.text = this.textList[this.index].text;
+    this.initText(this.index);
+    this.scrollTo();
   }
 
   private next() {
@@ -234,7 +236,12 @@ export default class Annotate extends Vue {
       return;
     }
     this.index++;
-    this.textTemp = this.text = this.textList[this.index].text;
+    this.initText(this.index);
+    this.scrollTo();
+  }
+  private scrollTo() {
+    // @ts-ignore
+    this.$refs.textListRef.scrollTop = this.index * 120;
   }
 }
 </script>
