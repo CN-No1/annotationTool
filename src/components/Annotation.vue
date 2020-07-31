@@ -12,6 +12,15 @@
     </div>
     <div class="annotation-wrapper">
       <div class="annotation">
+        <el-popover
+          placement="top-start"
+          title="材料"
+          width="800"
+          trigger="hover"
+          :content="questionText || '无'"
+        >
+          <div class="question" slot="reference">Q: {{ question }}</div>
+        </el-popover>
         <div class="label-wrapper">
           <span
             class="label"
@@ -75,8 +84,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-// @ts-ignore
-import json from '@/assets/json/demo.js';
 
 @Component
 export default class Annotate extends Vue {
@@ -100,13 +107,16 @@ export default class Annotate extends Vue {
   private endOffset: number = 0;
   private index: number = 0;
 
+  private question: any = '';
+  private questionText: any = '';
+
   get textList() {
-    return this.json.texts;
+    return this.json;
   }
 
   get labels() {
     const arr: any = [];
-    this.json.labels.map((item: any, index: number) => {
+    this.json[this.index].labels.map((item: any, index: number) => {
       let obj = {
         id: index,
         name: item,
@@ -117,28 +127,24 @@ export default class Annotate extends Vue {
     return arr;
   }
 
-  private json = require('@/assets/json/demo.json');
+  private json = require('@/assets/json/demo2.json');
 
   private mounted() {
     this.initText();
   }
 
   private initText() {
-    const arr: any = [];
-    this.json.texts.map((item: any) => {
-      let obj = {
-        text: item,
-        labeled: [],
-      };
-      arr.push(obj);
-    });
-    this.json.texts = arr;
-    this.textTemp = this.text = this.json.texts[0].text;
+    const init = this.json[0];
+    this.textTemp = this.text = init.text;
+    this.question = init.question_text;
+    this.questionText = init.problem_text;
   }
 
   private changeText(i: any, index: number) {
     this.textTemp = this.text = i.text;
     this.index = index;
+    this.question = i.question_text;
+    this.questionText = i.problem_text;
     this.tableData = [].concat(i.labeled);
   }
 
@@ -251,6 +257,16 @@ export default class Annotate extends Vue {
     display: flex;
     .annotation {
       width: 750px;
+      .question {
+        padding: 20px 0 10px 20px;
+        align-items: center;
+        color: #363636;
+        display: flex;
+        font-weight: 700;
+        background-color: royalblue;
+        flex-wrap: wrap;
+        color: white;
+      }
       .label-wrapper {
         padding: 20px 0 10px 20px;
         align-items: center;
