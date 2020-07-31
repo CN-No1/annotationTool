@@ -1,6 +1,12 @@
 <template>
   <div class="wrapper">
     <div class="text-list" ref="textListRef">
+      <div class="inputs">
+        <el-input v-model="stratIndex" placeholder="开始序号"></el-input
+        ><span style="width:80px">至</span>
+        <el-input v-model="endIndex" placeholder="结束序号"> </el-input>
+        <el-button circle icon="el-icon-search" @click="getList()"> </el-button>
+      </div>
       <div
         class="text-item"
         v-for="(i, idx) in textList"
@@ -115,6 +121,8 @@ export default class Annotate extends Vue {
   private startOffset: number = 0;
   private endOffset: number = 0;
   private index: number = 0;
+  private stratIndex: number = 0;
+  private endIndex: number = 100;
 
   private question: any = '';
   private questionText: any = '';
@@ -147,9 +155,15 @@ export default class Annotate extends Vue {
     return '#' + ((Math.random() * 0xffffff) << 0).toString(16);
   }
 
-  private json = require('@/assets/json/demo2.json');
+  private jsons = require('@/assets/json/demo2.json');
+  private json: any = {};
 
   private mounted() {
+    this.getList();
+  }
+
+  private getList() {
+    this.json = this.jsons.slice(this.stratIndex, this.endIndex);
     this.initText(0);
   }
 
@@ -257,6 +271,13 @@ export default class Annotate extends Vue {
     width: 400px;
     background-color: #2a2e2f;
     border-right: 1px solid #dedede;
+    .inputs {
+      display: flex;
+      margin-top: 20px;
+      justify-content: space-between;
+      color: white;
+      align-items: center;
+    }
     overflow-y: auto;
     .text-item {
       font-size: 15px;
