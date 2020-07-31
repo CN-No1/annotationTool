@@ -21,7 +21,7 @@
       <div class="record">
         <el-table
           :data="tableData"
-          style="width: 1100px"
+          style="width: 95%;margin:auto;"
           @cell-mouse-enter="rowHover"
           @cell-mouse-leave="rowHoverLeave"
           max-height="350"
@@ -62,28 +62,28 @@ export default class Annotate extends Vue {
     '原告佡某诉称，要求与被告离婚，夫妻感情已破裂。经审理查明，原、被告于1988年自由恋爱相识，1990年6月登记结婚，婚生一男孩龚某某，婚后初期夫妻感情尚可，后因家庭琐事产生矛盾，导致夫妻感情不和，故原告于2014年3月18日起诉来院。本院认为，婚姻关系的存续应以夫妻感情为基础。原、被告系自主婚姻，婚后双方虽因家庭生活琐事争吵，但并未导致夫妻感情彻底破裂。原告应珍惜来之不易的夫妻感情，考虑家庭及子女的长远利益，放弃离婚念头；被告亦应积极做夫妻和好工作，努力克服自己的缺点和不足，多关心体贴爱人。只要双方多做自我批评、互解互谅，共建美满幸福家庭是完全可能的。';
   private text: string =
     '原告佡某诉称，要求与被告离婚，夫妻感情已破裂。经审理查明，原、被告于1988年自由恋爱相识，1990年6月登记结婚，婚生一男孩龚某某，婚后初期夫妻感情尚可，后因家庭琐事产生矛盾，导致夫妻感情不和，故原告于2014年3月18日起诉来院。本院认为，婚姻关系的存续应以夫妻感情为基础。原、被告系自主婚姻，婚后双方虽因家庭生活琐事争吵，但并未导致夫妻感情彻底破裂。原告应珍惜来之不易的夫妻感情，考虑家庭及子女的长远利益，放弃离婚念头；被告亦应积极做夫妻和好工作，努力克服自己的缺点和不足，多关心体贴爱人。只要双方多做自我批评、互解互谅，共建美满幸福家庭是完全可能的。';
-  private labels: any[] = [
-    {
-      id: 1,
-      name: '标签1',
-      color: '#DDE6E8',
-    },
-    {
-      id: 2,
-      name: '标签2',
-      color: '#1FBC9C',
-    },
-    {
-      id: 3,
-      name: '标签3',
-      color: '#DDE6E8',
-    },
-    {
-      id: 4,
-      name: '标签4',
-      color: '#1FBC9C',
-    },
-  ];
+  // private labels: any[] = [
+  //   {
+  //     id: 1,
+  //     name: '标签1',
+  //     color: '#DDE6E8',
+  //   },
+  //   {
+  //     id: 2,
+  //     name: '标签2',
+  //     color: '#1FBC9C',
+  //   },
+  //   {
+  //     id: 3,
+  //     name: '标签3',
+  //     color: '#DDE6E8',
+  //   },
+  //   {
+  //     id: 4,
+  //     name: '标签4',
+  //     color: '#1FBC9C',
+  //   },
+  // ];
   get filters() {
     const arr: any = [];
     this.labels.map((item: any) => {
@@ -100,11 +100,26 @@ export default class Annotate extends Vue {
   private endOffset: number = 0;
 
   get textList() {
-    return json.texts;
+    return this.json.texts;
   }
 
+  get labels() {
+    const arr: any = [];
+    this.json.labels.map((item: any, index: number) => {
+      let obj = {
+        id: index,
+        name: item,
+        color: index % 2 === 1 ? '#DDE6E8' : '#1FBC9C',
+      };
+      arr.push(obj);
+    });
+    return arr;
+  }
+
+  private json = require('@/assets/json/demo.json');
+
   private mounted() {
-    this.textTemp = this.text = this.textList[0];
+    this.textTemp = this.text = this.json.texts[0];
   }
 
   private changeText(i: any) {
@@ -196,7 +211,7 @@ export default class Annotate extends Vue {
   }
   .annotation-wrapper {
     flex: 1;
-    padding: 100px 200px 0 200px;
+    padding: 50px;
     .label-wrapper {
       padding: 1.5rem;
       align-items: center;
@@ -234,6 +249,10 @@ export default class Annotate extends Vue {
       line-height: 250%;
       margin-bottom: 20px;
       text-align: left;
+    }
+    .record {
+      width: 100%;
+      text-align: center;
     }
   }
 }
