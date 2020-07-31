@@ -70,7 +70,9 @@
             filter-placement="bottom-end"
           >
             <template slot-scope="scope">
-              <el-tag close-transition>{{ scope.row.label }}</el-tag>
+              <el-tag style="font-size:14px;" close-transition>{{
+                scope.row.label
+              }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column label="操作" width="70" align="center">
@@ -114,6 +116,13 @@ export default class Annotate extends Vue {
   private question: any = '';
   private questionText: any = '';
 
+  private colorList: any[] = [
+    'rgb(98, 233, 221)',
+    'rgb(215, 212, 233)',
+    'rgb(216, 175, 232)',
+    'rgb(244 233 132)',
+  ];
+
   get textList() {
     return this.json;
   }
@@ -124,11 +133,15 @@ export default class Annotate extends Vue {
       let obj = {
         id: index,
         name: item,
-        color: index % 2 === 1 ? '#DDE6E8' : '#1FBC9C',
+        color: this.colorList[index % 4],
       };
       arr.push(obj);
     });
     return arr;
+  }
+
+  private getRandomColor() {
+    return '#' + ((Math.random() * 0xffffff) << 0).toString(16);
   }
 
   private json = require('@/assets/json/demo2.json');
@@ -285,7 +298,7 @@ export default class Annotate extends Vue {
           border-radius: 4px;
           color: #4a4a4a;
           display: inline-flex;
-          font-size: 0.75rem;
+          font-size: 14px;
           height: 2em;
           justify-content: center;
           line-height: 1.5;
