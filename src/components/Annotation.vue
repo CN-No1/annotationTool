@@ -1,32 +1,54 @@
 <template>
   <div class="wrapper">
     <div class="text-list">
-      <div class="text-item" v-for="i in textList" @click="changeText(i)">
-        {{ i }}
+      <div
+        class="text-item"
+        v-for="(i, index) in textList"
+        @click="changeText(i, index)"
+        :style="{ color: i.labeled.length > 0 ? 'green' : 'white' }"
+      >
+        {{ index + 1 }}、{{ i.text }}
       </div>
     </div>
     <div class="annotation-wrapper">
-      <div class="label-wrapper">
-        <span
-          class="label"
-          v-for="i in labels"
-          :style="{ background: i.color }"
-          @click="annotate(i)"
-          >{{ i.name }}</span
-        >
-      </div>
-      <div class="text-data" @click="getSelection" v-html="text">
-        {{ text }}
+      <div class="annotation">
+        <div class="label-wrapper">
+          <span
+            class="label"
+            v-for="i in labels"
+            :style="{ background: i.color }"
+            @click="annotate(i)"
+            >{{ i.name }}</span
+          >
+        </div>
+        <div class="text-data" @click="getSelection" v-html="text"></div>
+        <div class="btns-left">
+          <el-button
+            circle
+            plain
+            icon="el-icon-caret-left"
+            @click="pre"
+          ></el-button>
+        </div>
+        <div class="btns-right">
+          <el-button
+            circle
+            plain
+            icon="el-icon-caret-right"
+            @click="next"
+          ></el-button>
+        </div>
       </div>
       <div class="record">
         <el-table
           :data="tableData"
-          style="width: 95%;margin:auto;"
+          style="width: 85%;margin:auto;"
           @cell-mouse-enter="rowHover"
           @cell-mouse-leave="rowHoverLeave"
-          max-height="350"
+          max-height="750"
         >
-          <el-table-column prop="text" label="文本"> </el-table-column>
+          <el-table-column prop="text" label="文本" width="200">
+          </el-table-column>
           <el-table-column
             prop="label"
             label="标签"
@@ -38,9 +60,9 @@
               <el-tag close-transition>{{ scope.row.label }}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作">
+          <el-table-column label="操作" width="70" align="center">
             <template slot-scope="scope">
-              <el-button @click.native.prevent="deleteRow(scope)">
+              <el-button type="text" @click.native.prevent="deleteRow(scope)">
                 移除
               </el-button>
             </template>
@@ -62,28 +84,6 @@ export default class Annotate extends Vue {
     '原告佡某诉称，要求与被告离婚，夫妻感情已破裂。经审理查明，原、被告于1988年自由恋爱相识，1990年6月登记结婚，婚生一男孩龚某某，婚后初期夫妻感情尚可，后因家庭琐事产生矛盾，导致夫妻感情不和，故原告于2014年3月18日起诉来院。本院认为，婚姻关系的存续应以夫妻感情为基础。原、被告系自主婚姻，婚后双方虽因家庭生活琐事争吵，但并未导致夫妻感情彻底破裂。原告应珍惜来之不易的夫妻感情，考虑家庭及子女的长远利益，放弃离婚念头；被告亦应积极做夫妻和好工作，努力克服自己的缺点和不足，多关心体贴爱人。只要双方多做自我批评、互解互谅，共建美满幸福家庭是完全可能的。';
   private text: string =
     '原告佡某诉称，要求与被告离婚，夫妻感情已破裂。经审理查明，原、被告于1988年自由恋爱相识，1990年6月登记结婚，婚生一男孩龚某某，婚后初期夫妻感情尚可，后因家庭琐事产生矛盾，导致夫妻感情不和，故原告于2014年3月18日起诉来院。本院认为，婚姻关系的存续应以夫妻感情为基础。原、被告系自主婚姻，婚后双方虽因家庭生活琐事争吵，但并未导致夫妻感情彻底破裂。原告应珍惜来之不易的夫妻感情，考虑家庭及子女的长远利益，放弃离婚念头；被告亦应积极做夫妻和好工作，努力克服自己的缺点和不足，多关心体贴爱人。只要双方多做自我批评、互解互谅，共建美满幸福家庭是完全可能的。';
-  // private labels: any[] = [
-  //   {
-  //     id: 1,
-  //     name: '标签1',
-  //     color: '#DDE6E8',
-  //   },
-  //   {
-  //     id: 2,
-  //     name: '标签2',
-  //     color: '#1FBC9C',
-  //   },
-  //   {
-  //     id: 3,
-  //     name: '标签3',
-  //     color: '#DDE6E8',
-  //   },
-  //   {
-  //     id: 4,
-  //     name: '标签4',
-  //     color: '#1FBC9C',
-  //   },
-  // ];
   get filters() {
     const arr: any = [];
     this.labels.map((item: any) => {
@@ -98,6 +98,7 @@ export default class Annotate extends Vue {
   private tableData: any[] = [];
   private startOffset: number = 0;
   private endOffset: number = 0;
+  private index: number = 0;
 
   get textList() {
     return this.json.texts;
@@ -119,11 +120,25 @@ export default class Annotate extends Vue {
   private json = require('@/assets/json/demo.json');
 
   private mounted() {
-    this.textTemp = this.text = this.json.texts[0];
+    this.initText();
   }
 
-  private changeText(i: any) {
-    this.textTemp = this.text = i;
+  private initText() {
+    const arr: any = [];
+    this.json.texts.map((item: any) => {
+      let obj = {
+        text: item,
+        labeled: [],
+      };
+      arr.push(obj);
+    });
+    this.json.texts = arr;
+    this.textTemp = this.text = this.json.texts[0].text;
+  }
+
+  private changeText(i: any, index: number) {
+    this.textTemp = this.text = i.text;
+    this.index = index;
   }
 
   private annotate(i: any) {
@@ -138,10 +153,12 @@ export default class Annotate extends Vue {
       end: this.endOffset + 1,
     };
     this.tableData.push(obj);
+    this.textList[this.index].labeled.push(obj);
     this.endOffset = 0;
   }
   private deleteRow(scope: any) {
     this.tableData.splice(scope.$index, 1);
+    this.textList[this.index].labeled = [].concat(...this.tableData);
     this.rowHoverLeave();
   }
 
@@ -179,6 +196,22 @@ export default class Annotate extends Vue {
   private filterTag(value: any, row: any) {
     return row.label === value;
   }
+
+  private pre() {
+    if (this.index === 0) {
+      return;
+    }
+    this.index--;
+    this.textTemp = this.text = this.textList[this.index].text;
+  }
+
+  private next() {
+    if (this.index === this.textList.length - 1) {
+      return;
+    }
+    this.index++;
+    this.textTemp = this.text = this.textList[this.index].text;
+  }
 }
 </script>
 
@@ -211,48 +244,64 @@ export default class Annotate extends Vue {
   }
   .annotation-wrapper {
     flex: 1;
-    padding: 50px;
-    .label-wrapper {
-      padding: 1.5rem;
-      align-items: center;
-      color: #363636;
-      display: flex;
-      flex-grow: 1;
-      font-weight: 700;
-      padding: 0.75rem;
-      background-color: royalblue;
-      .label {
+    padding: 30px 0 10px 30px;
+    display: flex;
+    .annotation {
+      width: 750px;
+      .label-wrapper {
+        padding: 20px 0 10px 20px;
         align-items: center;
-        background-color: #f5f5f5;
-        border-radius: 4px;
+        color: #363636;
+        display: flex;
+        font-weight: 700;
+        background-color: royalblue;
+        flex-wrap: wrap;
+        .label {
+          align-items: center;
+          background-color: #f5f5f5;
+          border-radius: 4px;
+          color: #4a4a4a;
+          display: inline-flex;
+          font-size: 0.75rem;
+          height: 2em;
+          justify-content: center;
+          line-height: 1.5;
+          white-space: nowrap;
+          padding: 5px 10px;
+          margin-right: 10px;
+          cursor: pointer;
+          margin-bottom: 10px;
+        }
+      }
+
+      .text-data {
+        background-color: #fff;
+        box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1),
+          0 0 0 1px rgba(10, 10, 10, 0.1);
         color: #4a4a4a;
-        display: inline-flex;
-        font-size: 0.75rem;
-        height: 2em;
-        justify-content: center;
-        line-height: 1.5;
-        white-space: nowrap;
-        padding: 5px 10px;
-        margin-right: 10px;
-        cursor: pointer;
+        padding: 2rem;
+        font-size: 16pt;
+        line-height: 250%;
+        margin-bottom: 20px;
+        text-align: left;
+        height: 80%;
+        overflow-y: auto;
       }
     }
-    .text-data {
-      background-color: #fff;
-      box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1),
-        0 0 0 1px rgba(10, 10, 10, 0.1);
-      color: #4a4a4a;
-      max-width: 100%;
-      position: relative;
-      padding: 1.5rem;
-      font-size: 16pt;
-      line-height: 250%;
-      margin-bottom: 20px;
-      text-align: left;
-    }
+
     .record {
-      width: 100%;
+      flex: 1;
       text-align: center;
+    }
+    .btns-left {
+      position: absolute;
+      top: 50%;
+      left: 410px;
+    }
+    .btns-right {
+      position: absolute;
+      top: 50%;
+      left: 1160px;
     }
   }
 }
