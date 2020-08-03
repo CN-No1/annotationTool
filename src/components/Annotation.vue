@@ -23,7 +23,7 @@
         v-for="(i, idx) in textList"
         @click="changeText(i, idx)"
         :style="{
-          color: i.labeled && i.labeled.length > 0 ? 'green' : 'white',
+          color: i.labeled && i.labeled.length > 0 ? '#7df296' : 'white',
           background: idx === index ? '#515054' : '#2a2e2f',
         }"
       >
