@@ -2,9 +2,20 @@
   <div class="wrapper">
     <div class="text-list" ref="textListRef">
       <div class="inputs">
-        <el-input v-model="stratIndex" placeholder="开始序号"></el-input
+        <el-input
+          v-model.number="stratIndex"
+          placeholder="开始序号"
+          @input="validateNumber"
+          @keyup.enter.native="getList"
+        ></el-input
         ><span style="width:80px">至</span>
-        <el-input v-model="endIndex" placeholder="结束序号"> </el-input>
+        <el-input
+          v-model.number="endIndex"
+          placeholder="结束序号"
+          @input="validateNumber"
+          @keyup.enter.native="getList"
+        >
+        </el-input>
         <el-button circle icon="el-icon-search" @click="getList()"> </el-button>
       </div>
       <div
@@ -12,7 +23,7 @@
         v-for="(i, idx) in textList"
         @click="changeText(i, idx)"
         :style="{
-          color: i.labeled.length > 0 ? 'green' : 'white',
+          color: i.labeled && i.labeled.length > 0 ? 'green' : 'white',
           background: idx === index ? '#515054' : '#2a2e2f',
         }"
       >
@@ -121,7 +132,7 @@ export default class Annotate extends Vue {
   private startOffset: number = 0;
   private endOffset: number = 0;
   private index: number = 0;
-  private stratIndex: number = 0;
+  private stratIndex: number = 1;
   private endIndex: number = 100;
 
   private question: any = '';
@@ -139,6 +150,9 @@ export default class Annotate extends Vue {
   }
 
   get labels() {
+    if (this.json.length === 0) {
+      return [];
+    }
     const arr: any = [];
     this.json[this.index].labels.map((item: any, index: number) => {
       let obj = {
@@ -156,15 +170,29 @@ export default class Annotate extends Vue {
   }
 
   private jsons = require('@/assets/json/demo2.json');
-  private json: any = {};
+  private json: any[] = [];
 
   private mounted() {
     this.getList();
   }
 
   private getList() {
-    this.json = this.jsons.slice(this.stratIndex, this.endIndex);
-    this.initText(0);
+    this.$api.xHttp
+      .get(this.$interfaces.getTextList, {
+        start: this.stratIndex,
+        end: this.endIndex,
+      })
+      .then((res: any) => {
+        this.json = res;
+        this.initText(0);
+      });
+    // this.json = this.jsons.slice(this.stratIndex, this.endIndex);
+  }
+
+  private validateNumber() {
+    if (this.stratIndex >= this.endIndex) {
+      this.endIndex = this.stratIndex + 1;
+    }
   }
 
   private initText(index: number) {
@@ -172,12 +200,12 @@ export default class Annotate extends Vue {
     this.textTemp = this.text = init.text;
     this.question = init.question_text;
     this.questionText = init.problem_text;
+    this.tableData = [].concat(init.labeled);
   }
 
   private changeText(i: any, index: number) {
     this.index = index;
     this.initText(index);
-    this.tableData = [].concat(i.labeled);
   }
 
   private annotate(i: any) {
@@ -186,18 +214,31 @@ export default class Annotate extends Vue {
     }
     const text = this.text.slice(this.startOffset + 1, this.endOffset + 1);
     const obj = {
+      id: '',
+      document_id: this.textList[this.index].id,
       text: text,
       label: i.name,
-      start: this.startOffset + 1,
-      end: this.endOffset + 1,
+      start_offset: this.startOffset + 1,
+      end_offset: this.endOffset + 1,
     };
-    this.tableData.push(obj);
-    this.textList[this.index].labeled.push(obj);
+    this.$api.xHttp
+      .post(this.$interfaces.addAnnotation, obj)
+      .then((res: any) => {
+        obj.id = res.id;
+        this.tableData.push(obj);
+        this.textList[this.index].labeled.push(obj);
+      });
     this.endOffset = 0;
   }
   private deleteRow(scope: any) {
-    this.tableData.splice(scope.$index, 1);
-    this.textList[this.index].labeled = [].concat(...this.tableData);
+    this.$api.xHttp
+      .delete(this.$interfaces.deleteAnnotation, {
+        annotation_id: scope.row.id,
+      })
+      .then((res: any) => {
+        this.tableData.splice(scope.$index, 1);
+        this.textList[this.index].labeled = [].concat(...this.tableData);
+      });
     this.rowHoverLeave();
   }
 
@@ -214,7 +255,12 @@ export default class Annotate extends Vue {
 
   private rowHover(row: any) {
     const styleSpan = '<span style="color:red;">' + row.text + '</span>';
-    this.text = this.replaceChat(this.text, row.start, row.end, styleSpan);
+    this.text = this.replaceChat(
+      this.text,
+      row.start_offset,
+      row.end_offset,
+      styleSpan
+    );
   }
   private rowHoverLeave() {
     this.text = this.textTemp;
@@ -348,14 +394,27 @@ export default class Annotate extends Vue {
         line-height: 250%;
         margin-bottom: 20px;
         text-align: left;
-        height: 80%;
+        height: auto;
+        max-height: 80%;
         overflow-y: auto;
       }
     }
 
     .record {
+      margin-left: 20px;
       flex: 1;
       text-align: center;
+      background-color: #fff;
+      box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1),
+        0 0 0 1px rgba(10, 10, 10, 0.1);
+      color: #4a4a4a;
+      padding: 2rem;
+      font-size: 16pt;
+      line-height: 250%;
+      margin-bottom: 20px;
+      text-align: left;
+      height: 90%;
+      overflow-y: auto;
     }
     .btns-left {
       position: absolute;

@@ -16,11 +16,11 @@ const config = require('../config/index.js');
 // 多种类型接口处理(根据各自项目进行修改)
 const DEF = [
   {
-    fail_handling: (res: { code: number, msg: any }) => {
+    fail_handling: (res: { code: number, errmsg: any, }) => {
       if (res.code === 205) {
-        Notification.warning({title: '警告', message: res.msg || '系统问题，请稍后再试！'});
+        Notification.warning({title: '警告', message: res.errmsg || '系统问题，请稍后再试！'});
       } else {
-        Notification.error({title: '错误', message: res.msg || '系统问题，请稍后再试！'});
+        Notification.error({title: '错误', message: res.errmsg || '系统问题，请稍后再试！'});
       }
     }
   }
@@ -33,7 +33,7 @@ const DEF = [
  * @param defEx
  * @param defData
  */
-function successParse (res: { data: { code: number, data: object, msg: any } }, load: boolean, defEx: boolean, defData: boolean) {
+function successParse (res: { data: { code: number, data: object, errmsg: any } }, load: boolean, defEx: boolean, defData: boolean) {
   return new Promise((resolve) => {
     try {
       const obj = res.data;
@@ -53,7 +53,7 @@ function successParse (res: { data: { code: number, data: object, msg: any } }, 
       }
     } catch (ex) {
       if (defEx) {
-        DEF[0].fail_handling({code: -1, msg: ''});
+        DEF[0].fail_handling({code: -1, errmsg: ''});
       } else {
         resolve({});
       }
@@ -69,10 +69,10 @@ function successParse (res: { data: { code: number, data: object, msg: any } }, 
  * @param arg
  * @returns {Promise.<*>|Promise<R>}
  */
-function errorParse (ex: { headers: any, status: number, data: { code: number, data: object, msg: any } }, load: boolean, defFail: boolean, arg: any) {
+function errorParse (ex: { headers: any, status: number, data: { code: number, data: object, errmsg: any } }, load: boolean, defFail: boolean, arg: any) {
   let resData = null;
   return new Promise((resolve, reject) => {
-    const obj = ex ? ex.data : {msg: ''};
+    const obj = ex ? ex.data : {errmsg: ''};
 
     if (ex.status === 401) {
       // token 失效
@@ -87,15 +87,15 @@ function errorParse (ex: { headers: any, status: number, data: { code: number, d
         // console.log(url, method, body, options, load, loadMsg, defFail, defEx, defData);
         resolve(send(url, method, body, options, load, loadMsg, defFail, defEx, defData));
       } else {
-        DEF[0].fail_handling({code: ex.status || -1, msg: obj.msg});
+        DEF[0].fail_handling({code: ex.status || -1, errmsg: obj.errmsg});
         router.push('/login');
       }
     } else if (defFail) {
-      DEF[0].fail_handling({code: ex.status || -1, msg: obj.msg});
+      DEF[0].fail_handling({code: ex.status || -1, errmsg: obj.errmsg});
     } else {
       resData = {
         code: ex.status,
-        msg: obj.msg
+        errmsg: obj.errmsg
       };
       reject(resData);
     }
