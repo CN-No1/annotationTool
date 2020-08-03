@@ -174,6 +174,14 @@ export default class Annotate extends Vue {
 
   private mounted() {
     this.getList();
+    document.onkeydown = (event: any) => {
+      if (event.keyCode == 37 || event.keyCode == 38) {
+        this.pre();
+      }
+      if (event.keyCode == 39 || event.keyCode == 40) {
+        this.next();
+      }
+    };
   }
 
   private getList() {
