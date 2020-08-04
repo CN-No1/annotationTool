@@ -5,14 +5,12 @@
         <el-input
           v-model.number="stratIndex"
           placeholder="开始序号"
-          @input="validateNumber"
           @keyup.enter.native="getList"
         ></el-input
         ><span style="width:80px">至</span>
         <el-input
           v-model.number="endIndex"
           placeholder="结束序号"
-          @input="validateNumber"
           @keyup.enter.native="getList"
         >
         </el-input>
@@ -27,7 +25,7 @@
           background: idx === index ? '#515054' : '#2a2e2f',
         }"
       >
-        {{ idx + 1 }}、{{ i.text }}
+        {{ baseIndex + idx }}、{{ i.text }}
       </div>
     </div>
     <div class="annotation-wrapper">
@@ -135,6 +133,8 @@ export default class Annotate extends Vue {
   private stratIndex: number = 1;
   private endIndex: number = 100;
 
+  private baseIndex:number = 1;
+
   private question: any = '';
   private questionText: any = '';
 
@@ -189,6 +189,7 @@ export default class Annotate extends Vue {
   }
 
   private getList() {
+    this.validateNumber();
     this.$api.xHttp
       .get(this.$interfaces.getTextList, {
         start: this.stratIndex,
@@ -202,6 +203,7 @@ export default class Annotate extends Vue {
   }
 
   private validateNumber() {
+    this.baseIndex = this.stratIndex;
     if (this.stratIndex >= this.endIndex) {
       this.endIndex = this.stratIndex + 1;
     }

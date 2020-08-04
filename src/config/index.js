@@ -8,7 +8,7 @@ module.exports = {
     dev: ['annotation'],
     domain: {
       annotation: {
-        development: 'http://192.168.10.16:3000/', // 本地
+        development: 'http://192.168.11.74:3000/', // 本地
         release: 'http://192.168.11.24:7888/api/v2/admin/',
         production: 'http://140.0.189.205/',
       },
